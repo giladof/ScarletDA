@@ -20,14 +20,8 @@ ScarletDA project contains a testing project (ScarletDATest) that is used for te
 
 Code Example
 ------------
-ScarletLib.BaseClasses.Program notepad = new ScarletLib.BaseClasses.Program("Notepad", "notepad.exe", null);
-Task<string> result = notepad.RunmeAsync();
-while (!result.IsCompleted)
-  {
-      Console.WriteLine("Current Status: {0}",notepad.ProgramState);
-      System.Threading.Thread.Sleep(3000);
-  }
-Console.WriteLine("Current Status: {0}", notepad.ProgramState);
+
+See ScartletDATest for code example
 
 ## Built With
 Visual Studio 2015 Community (C#) - https://www.visualstudio.com/thank-you-downloading-visual-studio/?sku=Community&rel=15
