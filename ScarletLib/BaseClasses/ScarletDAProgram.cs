@@ -13,16 +13,16 @@ namespace ScarletLib.BaseClasses
     /// This class allows running a program via command. A new process will be started.
     /// This process will be monitored by this class.
     /// </summary>
-    public class Program:IRunner
+    public class ScarletDAProgram:IRunner
     {
         #region Constructors
         /// <summary>
-        /// 
+        /// This class is assosiated with the Scarlet Dictionary, the name should correspond with the action for the voice / keyboard command.
         /// </summary>
         /// <param name="name">A friendly name for the program</param>
         /// <param name="command">The command that needs to run (e.g. notepad.exe)</param>
         /// <param name="workingDirectory">Allows null for no directory (local directory of the service)</param>
-        public Program(string name, string command, string workingDirectory)
+        public ScarletDAProgram(string name, string command, string workingDirectory)
         {
             this.Name = name;
             this.Command = command;
@@ -40,6 +40,7 @@ namespace ScarletLib.BaseClasses
         string _command;
         Dictionary<string, string> _arguments;
         string _workingDirectory;
+        int _procID;
         #endregion
 
         #region Properties
@@ -94,6 +95,18 @@ namespace ScarletLib.BaseClasses
                 if (string.IsNullOrWhiteSpace(value)) _workingDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 else _workingDirectory = value;
             } }
+        public int ProcID
+        {
+            get
+            {
+               
+                return _procID;
+            }
+            private set
+            {
+                _procID = value;
+            }
+        }
         #endregion
 
         #region Enums
@@ -130,7 +143,8 @@ namespace ScarletLib.BaseClasses
                 UseShellExecute=false
             };
             Console.WriteLine(this.Command + this.GetArgs());
-             proc.Start();
+            proc.Start();
+            ProcID = proc.Id;
             handle = proc.MainWindowHandle;
             SetForegroundWindow(handle);
             OnProgramChanged(EventArgs.Empty); 

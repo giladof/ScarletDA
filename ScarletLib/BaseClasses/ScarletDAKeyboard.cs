@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace ScarletLib.BaseClasses
 {
-   public class ScarletDAServer
+   public class ScarletDAKeyboard
     {
         #region Private Members
         private const int WH_KEYBOARD_LL = 13;
@@ -23,17 +23,16 @@ namespace ScarletLib.BaseClasses
           #endregion
 
         #region General Methods
-        public static void StartServer()
+        public static void StartHook()
         {
                _hookID = SetHook(_proc);
-             ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAService After things!"+_hookID, AppDomain.CurrentDomain.BaseDirectory + "ServiceLog.txt");
-
-       //     UnhookWindowsHookEx(_hookID);
-
+                ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAHook intercepting keyboard!"+_hookID, AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
         }
-
-       
-
+        public static void StopHook()
+        {
+            UnhookWindowsHookEx(_hookID);
+            ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAHook stopped intercepting keyboard!" + _hookID, AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
+        }
         #endregion
 
         #region Keyboard Hooks
@@ -41,21 +40,12 @@ namespace ScarletLib.BaseClasses
         {
             
             using (Process curProcess = Process.GetCurrentProcess())
-
             using (ProcessModule curModule = curProcess.MainModule)
-
             {
-                ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAService Here! "+ curModule.ModuleName+ " Client thread:"+ClientThread, AppDomain.CurrentDomain.BaseDirectory + "ServiceLog.txt");
-
                 return SetWindowsHookEx(WH_KEYBOARD_LL, proc,
-
                     GetModuleHandle(curModule.ModuleName), 0);
-
             }
-
         }
-
-
         private delegate IntPtr LowLevelKeyboardProc(
 
             int nCode, IntPtr wParam, IntPtr lParam);
@@ -66,14 +56,15 @@ namespace ScarletLib.BaseClasses
             int nCode, IntPtr wParam, IntPtr lParam)
 
         {
-            ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAService Here1!", AppDomain.CurrentDomain.BaseDirectory + "ServiceLog.txt");
-
+        
             if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
             {
-                ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAService Here1!", AppDomain.CurrentDomain.BaseDirectory + "ServiceLog.txt");
+                ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAService Here1!", AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
                 int vkCode = Marshal.ReadInt32(lParam);
                 //Handle 
                 var key = (Keys)vkCode;
+                ScarletLib.BaseClasses.ScarletLogger.LogMessage(String.Format("ScarletDAHud intercepted {0}, performing action!", key), AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
+
                 if (key == Keys.Down)
                 {
                    

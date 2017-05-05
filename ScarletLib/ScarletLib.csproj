@@ -43,13 +43,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseClasses\Program.cs" />
-    <Compile Include="BaseClasses\ScarletDAClient.cs" />
-    <Compile Include="BaseClasses\ScarletDAServer.cs" />
+    <Compile Include="BaseClasses\ScarletDADictionaryBase.cs" />
+    <Compile Include="BaseClasses\ScarletDAProgram.cs" />
+    <Compile Include="BaseClasses\ScarletDAKeyboard.cs" />
+    <Compile Include="BaseClasses\ScarletDASpeechListener.cs" />
     <Compile Include="BaseClasses\ScarletLogger.cs" />
     <Compile Include="Interfaces\IRunner.cs" />
+    <Compile Include="Interfaces\IScarletDADictionary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScarletDAVoice.cs" />
+    <Compile Include="BaseClasses\ScarletDAVoice.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
