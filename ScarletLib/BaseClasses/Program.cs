@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,6 +16,12 @@ namespace ScarletLib.BaseClasses
     public class Program:IRunner
     {
         #region Constructors
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name">A friendly name for the program</param>
+        /// <param name="command">The command that needs to run (e.g. notepad.exe)</param>
+        /// <param name="workingDirectory">Allows null for no directory (local directory of the service)</param>
         public Program(string name, string command, string workingDirectory)
         {
             this.Name = name;
@@ -94,8 +101,9 @@ namespace ScarletLib.BaseClasses
         #endregion
 
         #region Methods
-        public void AddArgument(string argValue, string argSwitch=null)
+        public void AddArgument(string argValue="", string argSwitch="")
         {
+            if (argValue == null && argSwitch == null) throw new Exception("One parameter must not be null!");
             Arguments.Add(argSwitch, argValue);
         }
 
@@ -107,7 +115,9 @@ namespace ScarletLib.BaseClasses
                 handler(this, e);
             }
         }
-
+        [DllImport("User32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+        private IntPtr handle;
         public string Runme()
         {
             proc = new Process();
@@ -119,7 +129,10 @@ namespace ScarletLib.BaseClasses
                 RedirectStandardOutput = true,
                 UseShellExecute=false
             };
-            proc.Start();
+            Console.WriteLine(this.Command + this.GetArgs());
+             proc.Start();
+            handle = proc.MainWindowHandle;
+            SetForegroundWindow(handle);
             OnProgramChanged(EventArgs.Empty); 
             while (!proc.HasExited)
             {
@@ -137,6 +150,7 @@ namespace ScarletLib.BaseClasses
             foreach (var arg in this.Arguments)
             {
                 if (arg.Key == null) b.Append(String.Format(" {0} ", arg.Value));
+                else if (arg.Value == "") b.Append(String.Format(" {0} ", arg.Key));
                 else b.Append(String.Format(" {0} {1}", arg.Key, arg.Value));
             }
             return b.ToString();

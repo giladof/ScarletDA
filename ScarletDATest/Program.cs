@@ -12,17 +12,20 @@ namespace ScarletDATest
         static void Main(string[] args)
         {
             ScarletLib.BaseClasses.Program notepad = new ScarletLib.BaseClasses.Program("Notepad", "notepad.exe", null);
-            Task<string> result = notepad.RunmeAsync();
-            notepad.ProgramChanged += Notepad_ProgramChanged;
+            ScarletLib.BaseClasses.Program ping = new ScarletLib.BaseClasses.Program("Ping", "ping.exe", null);
+            ping.AddArgument("127.0.0.1");
+            ping.AddArgument("", "-t");
+            Task<string> result = ping.RunmeAsync();
+            ping.ProgramChanged += ping_ProgramChanged;
             while (!result.IsCompleted)
             {
-                Console.WriteLine("Current Status: {0}",notepad.ProgramState);
+                Console.WriteLine("Current Status: {0}", ping.ProgramState);
                 System.Threading.Thread.Sleep(3000);
             }
-            Console.WriteLine("Current Status: {0}", notepad.ProgramState);
+            Console.WriteLine("Current Status: {0}", ping.ProgramState);
         }
 
-        private static void Notepad_ProgramChanged(object sender, EventArgs e)
+        private static void ping_ProgramChanged(object sender, EventArgs e)
         {
             Console.WriteLine("Raised event that program has changed: current value is {0}", (sender as ScarletLib.BaseClasses.Program).ProgramState);
         }
