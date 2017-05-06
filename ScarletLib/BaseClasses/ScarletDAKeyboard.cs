@@ -14,7 +14,7 @@ namespace ScarletLib.BaseClasses
         private const int WH_KEYBOARD_LL = 13;
 
         private const int WM_KEYDOWN = 0x0100;
-
+        private const int WM_SYSKEYDOWN = 0x0104;
         private static LowLevelKeyboardProc _proc = HookCallback;
 
         private static IntPtr _hookID = IntPtr.Zero;
@@ -34,7 +34,14 @@ namespace ScarletLib.BaseClasses
             ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAHook stopped intercepting keyboard!" + _hookID, AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
         }
         #endregion
-
+        public struct KBDLLHOOKSTRUCT
+        {
+            public int vkCode;
+            public int scanCode;
+            public int flags;
+            public int time;
+            public int dwExtraInfo;
+        }
         #region Keyboard Hooks
         private static IntPtr SetHook(LowLevelKeyboardProc proc)
         {
@@ -48,31 +55,35 @@ namespace ScarletLib.BaseClasses
         }
         private delegate IntPtr LowLevelKeyboardProc(
 
-            int nCode, IntPtr wParam, IntPtr lParam);
+            int nCode, IntPtr wParam, ref KBDLLHOOKSTRUCT lParam);
 
-
+        public static event EventHandler<KeyEventArgs> KeyboardExecuted;
+        protected static void OnKeyboardExecuted(KeyEventArgs e)
+        {
+            EventHandler<KeyEventArgs> handler = KeyboardExecuted;
+            if (handler != null)
+            {
+                handler(null, e);
+            }
+        }
         private static IntPtr HookCallback(
 
-            int nCode, IntPtr wParam, IntPtr lParam)
+            int nCode, IntPtr wParam, ref KBDLLHOOKSTRUCT lParam)
 
         {
-        
-            if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
+            if (nCode >= 0 && wParam == (IntPtr)WM_SYSKEYDOWN)
             {
-                ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAService Here1!", AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
-                int vkCode = Marshal.ReadInt32(lParam);
-                //Handle 
-                var key = (Keys)vkCode;
-                ScarletLib.BaseClasses.ScarletLogger.LogMessage(String.Format("ScarletDAHud intercepted {0}, performing action!", key), AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
 
-                if (key == Keys.Down)
-                {
-                   
-                   
-                }
+
+                    ScarletLib.BaseClasses.ScarletLogger.LogMessage(String.Format("ScarletDAHud intercepted {0}, performing action!", (Keys)lParam.vkCode), AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
+                    var KeyArgs = new KeyEventArgs();
+                    KeyArgs.SystemKey = (wParam == (IntPtr)WM_SYSKEYDOWN);
+                    KeyArgs.KeyPressed = (Keys)lParam.vkCode;
+                    OnKeyboardExecuted(KeyArgs);
+
+                
             }
-
-            return CallNextHookEx(_hookID, nCode, wParam, lParam);
+            return CallNextHookEx(_hookID, nCode, wParam,ref lParam);
         }
 
 
@@ -88,7 +99,7 @@ namespace ScarletLib.BaseClasses
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode,
 
-            IntPtr wParam, IntPtr lParam);
+            IntPtr wParam, ref KBDLLHOOKSTRUCT lParam);
         [DllImport("kernel32.dll")]
         static extern IntPtr GetConsoleWindow();
 
@@ -100,6 +111,13 @@ namespace ScarletLib.BaseClasses
         private static extern IntPtr GetModuleHandle(string lpModuleName);
         #endregion
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        public class KeyEventArgs : EventArgs
+        {
+            public bool SystemKey { get; set; }
+            public Keys KeyPressed { get; set; }
+        }
     }
 }

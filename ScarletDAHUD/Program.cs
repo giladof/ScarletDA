@@ -7,7 +7,7 @@ using System.Security.Permissions;
 
 namespace ScarletDAHUD
 {
-    class Program
+    public class Program
     {
         private static System.Windows.Forms.NotifyIcon ScarletDANotifyIcon;
         private static System.ComponentModel.IContainer components;
@@ -23,8 +23,9 @@ namespace ScarletDAHUD
         private static void menuExit_Click(object Sender, EventArgs e)
         {
             // Close the form, which closes the application.
-            Application.Exit();
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
         }
+        
         private static void menuListenHandle_Click(object sender, EventArgs e)
         {
             if (!_listen)
@@ -72,7 +73,7 @@ namespace ScarletDAHUD
             
             //menuExit
             menuExit = new System.Windows.Forms.MenuItem();
-            menuExit.Index = 2;
+            menuExit.Index = 0;
             menuExit.Text = "E&xit";
             menuExit.Click += new System.EventHandler(menuExit_Click);
             //
@@ -84,25 +85,24 @@ namespace ScarletDAHUD
             //
             //menuListen
             menuListen = new MenuItem();
-            menuListen.Index = 0;
+            menuListen.Index = 2;
             menuListen.Text = "S&top listening";
             menuListen.Click += new System.EventHandler(menuListenHandle_Click);
             //
             //mainContextMenu
             mainContextMenu = new System.Windows.Forms.ContextMenu();
             mainContextMenu.MenuItems.AddRange(
-                    new System.Windows.Forms.MenuItem[] { menuExit,menuHook, menuListen });
+                    new System.Windows.Forms.MenuItem[] { menuHook, menuListen,menuExit });
             //
             //ScarletDANotifyIcon
             ScarletDANotifyIcon = new System.Windows.Forms.NotifyIcon(components);
             ScarletDANotifyIcon.ContextMenu = mainContextMenu;
-            ScarletDANotifyIcon.Icon =
-               new System.Drawing.Icon(System.Environment.GetFolderPath
-               (System.Environment.SpecialFolder.Personal)
-               + @"\Icon.ico");
+            ScarletDANotifyIcon.Icon = Properties.Resources.daIco;
             ScarletDANotifyIcon.Visible = true;
             ScarletDANotifyIcon.Text = "Scarlet Digital Assistant";
             //
+            //Hook keyboard
+            menuHookHandle_Click(null,null);
         }
 
 
@@ -126,7 +126,8 @@ namespace ScarletDAHUD
             {
                 init();
                 ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAClient after init" , AppDomain.CurrentDomain.BaseDirectory + "ClientLog.txt");
-                ScarletLib.ScarletDAVoice.Voice.SpeakPhrase("Good Morning Sir! How did you sleep?");
+                ScarletLib.ScarletDAVoice.Voice.SpeakPhrase("Hello Sir! I am Scarlet, your digital assistant");
+                ScarletDAKeyboard.KeyboardExecuted += ScarletDAKeyboard_KeyboardExecuted;
                 SpeakListenRunner = new Thread(ListenSpeak);
                 SpeakListenRunner.Start();
                 Application.Run();
@@ -136,6 +137,22 @@ namespace ScarletDAHUD
             {
                 ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAClient Error init " + e.Message, AppDomain.CurrentDomain.BaseDirectory + "ClientLog.txt");
 
+            }
+        }
+
+        private static void ScarletDAKeyboard_KeyboardExecuted(object sender, ScarletLib.BaseClasses.ScarletDAKeyboard.KeyEventArgs e)
+        {
+            if (e.SystemKey)
+            {
+                switch (e.KeyPressed)
+                {
+                    case Keys.S:
+                        menuListenHandle_Click(null, null);
+                        break;
+                    case Keys.Q:
+                        menuExit_Click(null, null);
+                        break;
+                }
             }
         }
         #endregion
