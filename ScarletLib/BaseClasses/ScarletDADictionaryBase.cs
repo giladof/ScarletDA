@@ -27,7 +27,13 @@ namespace ScarletLib.BaseClasses
             }
             
         }
+        public ScarletDAProgram GetProgram(string ProgramName)
+        {
+            List<ScarletDAProgram> list = Dic.Where(val => val.Value.Name == ProgramName).Select(val => val.Value).ToList();
+            if (list.Count == 0) return null;
+            return list[0];
 
+        }
         public ScarletDAProgram[] ListAllPrograms()
         {
             List<ScarletDAProgram> programs = new List<ScarletDAProgram>();
@@ -54,6 +60,8 @@ namespace ScarletLib.BaseClasses
             Dic = DicTemp;
             return true;
         }
+
+
 
         public async Task<bool> RunProgram(string ProgramName)
         {

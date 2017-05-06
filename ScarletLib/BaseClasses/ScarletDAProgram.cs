@@ -119,6 +119,11 @@ namespace ScarletLib.BaseClasses
             if (argValue == null && argSwitch == null) throw new Exception("One parameter must not be null!");
             Arguments.Add(argSwitch, argValue);
         }
+        public void RemoveArguments()
+        {
+            Arguments.Clear();
+
+        }
 
         protected virtual void OnProgramChanged(EventArgs e)
         {
@@ -143,6 +148,7 @@ namespace ScarletLib.BaseClasses
                 UseShellExecute=false
             };
             Console.WriteLine(this.Command + this.GetArgs());
+            
             proc.Start();
             ProcID = proc.Id;
             handle = proc.MainWindowHandle;

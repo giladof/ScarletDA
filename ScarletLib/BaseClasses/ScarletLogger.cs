@@ -15,7 +15,7 @@ namespace ScarletLib.BaseClasses
             {
                 using (System.IO.StreamWriter writer = System.IO.File.AppendText(location))
                 {
-                    writer.WriteLine(msg);
+                    writer.WriteLine(string.Format("{0:MM/dd/yy H:mm:ss} - {1}",DateTime.Now,msg));
                 }
 
                 return;

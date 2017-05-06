@@ -12,6 +12,7 @@ namespace ScarletLib.Interfaces
         bool AddProgramToDictonary( ScarletDAProgram programInfo);
         bool RemoveProgramFromDictionary(string programName);
         ScarletDAProgram[] ListAllPrograms();
+        ScarletDAProgram GetProgram(string ProgramName);
         Task<bool> RunProgram(string ProgramName);
     }
 }

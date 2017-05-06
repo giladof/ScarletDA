@@ -26,12 +26,12 @@ namespace ScarletLib.BaseClasses
         public static void StartHook()
         {
                _hookID = SetHook(_proc);
-                ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAHook intercepting keyboard!"+_hookID, AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
+                ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAHook intercepting keyboard!", AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
         }
         public static void StopHook()
         {
             UnhookWindowsHookEx(_hookID);
-            ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAHook stopped intercepting keyboard!" + _hookID, AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
+            ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAHook stopped intercepting keyboard!", AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
         }
         #endregion
         public struct KBDLLHOOKSTRUCT

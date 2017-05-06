@@ -8,7 +8,7 @@ using System.Speech.Synthesis;
 using System.Threading;
 
 
-namespace ScarletLib
+namespace ScarletLib.BaseClasses
 {
     public sealed class ScarletDAVoice
     {

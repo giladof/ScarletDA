@@ -115,8 +115,12 @@ namespace ScarletDAHUD
         {
             while (_speak)
             {
-                ScarletLib.ScarletDAVoice.Voice.SpeakPhrase("Which program would you like me to open?");
                 ScarletDASpeechListener.Listener.Listen();
+                if (ScarletDASpeechListener.Listener.isInit)
+                {
+                    ScarletDAVoice.Voice.SpeakPhrase("Hey, How can I help?");
+                    ScarletDASpeechListener.Listener.Listen();
+                }
             }
         }
 
@@ -125,9 +129,10 @@ namespace ScarletDAHUD
             try
             {
                 init();
-                ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAClient after init" , AppDomain.CurrentDomain.BaseDirectory + "ClientLog.txt");
-                ScarletLib.ScarletDAVoice.Voice.SpeakPhrase("Hello Sir! I am Scarlet, your digital assistant");
-                ScarletDAKeyboard.KeyboardExecuted += ScarletDAKeyboard_KeyboardExecuted;
+               ScarletLogger.LogMessage("Starting Scarlet Digital Assistant" , AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
+                ScarletDAVoice.Voice.SpeakPhrase("Hello! I am Scarlet, your digital assistant");
+                ScarletDAVoice.Voice.SpeakPhrase("Say: Hey Scarlet! to ask me a question or give me commands");
+                ScarletDAKeyboard.KeyboardExecuted += ScarletDAKeyboard_KeyboardExecuted; 
                 SpeakListenRunner = new Thread(ListenSpeak);
                 SpeakListenRunner.Start();
                 Application.Run();
@@ -135,7 +140,7 @@ namespace ScarletDAHUD
             }
             catch (Exception e)
             {
-                ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAClient Error init " + e.Message, AppDomain.CurrentDomain.BaseDirectory + "ClientLog.txt");
+                ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAClient Error init " + e.Message, AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
 
             }
         }
