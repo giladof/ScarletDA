@@ -38,11 +38,11 @@ namespace ScarletLib.BaseClasses
             _recognizer = new SpeechRecognitionEngine();
             _recognizer.SetInputToDefaultAudioDevice();
             GrammarBuilder g = new GrammarBuilder();
-            Choices options = new Choices(new string[] { "Hey Scarlet","Thank you", "How do you feel?", "How are you?", "What's up?", "Tell the time", "Tell the date","What is the meaning of life?", "What is the answer to life the universe and everything?", "Bye bye Scarlet", "Goodbye Scarlet", "Goodbye" });
+            Choices options = new Choices(new string[] { "Yes","No","Hey Scarlet","Thank you","Tell me about yourself", "How do you feel?", "How are you?", "What's up?", "Tell the time", "Tell the date","What is the meaning of life?", "What is the answer to life the universe and everything?", "Bye bye Scarlet", "Goodbye Scarlet", "Goodbye" });
             g.Append(options);            
             _recognizer.LoadGrammar(new Grammar(g));
             GrammarBuilder gOpen = new GrammarBuilder("Open");
-            Choices openProg = new Choices(new string[] {"Notepad", "google", "facebook" });
+            Choices openProg = new Choices(new string[] {"vmware","Notepad", "google", "facebook","incognito","translate","Visual Studio Code","Visual Studio" });
             gOpen.Append(openProg);
             _recognizer.LoadGrammar(new Grammar(gOpen));
             _recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(_recognizerSpeechRecognized);
@@ -99,11 +99,32 @@ namespace ScarletLib.BaseClasses
                 _recognizer.Recognize(); // recognize speech asynchronous
             }
         }
-
+        private static bool inAbout = false;
         private void _recognizerSpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
+            
             string answer = e.Result.Text;
-            if (answer == "Hey Scarlet")
+            if (inAbout)
+            {
+                inAbout = false;
+                if (answer == "Yes")
+                {
+                    Programs.GetProgram("Browser").AddArgument("www.linkedin.com/in/gilad-ofir-44959919");
+                    bool res = Programs.RunProgram("Browser").Result;
+                    ScarletDAVoice.Voice.SpeakPhrase("Profile opened");
+                    Programs.GetProgram("Browser").RemoveArguments();
+                }
+                else if (answer == "No")
+                {
+                    ScarletDAVoice.Voice.SpeakPhrase("Oh, Ok");
+                }
+            }
+            if (answer == "Thank you")
+            {
+                ScarletDAVoice.Voice.SpeakPhrase("You're welcome");
+
+            }
+            else if (answer == "Hey Scarlet")
             {
                 isInit = true;
                 return;
@@ -121,10 +142,41 @@ namespace ScarletLib.BaseClasses
                     ScarletDAVoice.Voice.SpeakPhrase("I feel great, thank you! Have a nice day");
 
                 }
+                else if (answer == "Open Visual Studio Code")
+                {
+                       var result= new ScarletDAProgram("Visual Studio Code", "\"C:\\Program Files (x86)\\Microsoft VS Code\\Code.exe\"",null).RunmeAsync();
+                    ScarletDAVoice.Voice.SpeakPhrase("Opening Visual Studio Code");
+                }
+                else if (answer == "Open Visual Studio")
+                {
+                    var result = new ScarletDAProgram("Visual Studio 2015", "\"C:\\Program Files(x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\devenv.exe\"", null).RunmeAsync();
+                    ScarletDAVoice.Voice.SpeakPhrase("Opening  Studio 2015");
+                }
+                else if (answer == "Open vmware")
+                {
+                    var result = new ScarletDAProgram("Vmware", "\"C:\\Program Files (x86)\\VMware\\VMware Workstation\\vmware.exe\"", null).RunmeAsync();
+                    ScarletDAVoice.Voice.SpeakPhrase("Opening Vmware");
+                }
                 else if (answer.StartsWith("Open"))
                 {
                     switch (answer.Split(' ')[1])
                     {
+                        case "translate":
+                            {
+                                bool res = false;
+                                try
+                                {
+                                    Programs.GetProgram("Browser").AddArgument("translate.google.com");
+                                    res = Programs.RunProgram("Browser").Result;
+                                    ScarletDAVoice.Voice.SpeakPhrase("Google translate opened");
+                                    Programs.GetProgram("Browser").RemoveArguments();
+                                }
+                                catch (Exception ex1)
+                                {
+                                    ScarletLogger.LogMessage("Unable to start broswer: " + ex1.InnerException.Message, AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
+                                }
+                                break;
+                            }
                         case "google":
                             {
                                 bool res = false;
@@ -141,6 +193,24 @@ namespace ScarletLib.BaseClasses
                                 }
                                 break;
                             }
+                        case "incognito":
+                            {
+                                bool res = false;
+                                try
+                                {
+                                    Programs.GetProgram("Browser").AddArgument("--incognito");
+                                    res = Programs.RunProgram("Browser").Result;
+                                    ScarletDAVoice.Voice.SpeakPhrase("Chrome opened in private mode");
+                                    Programs.GetProgram("Browser").RemoveArguments();
+                                }
+                                catch (Exception ex2)
+                                {
+                                    ScarletLogger.LogMessage("Unable to start broswer: " + ex2.InnerException.Message, AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
+
+                                }
+                                break;
+
+                            }
                         case "facebook":
                             {
                                 bool res = false;
@@ -153,11 +223,11 @@ namespace ScarletLib.BaseClasses
                                 }
                                 catch (Exception ex2)
                                 {
-                                    ScarletLogger.LogMessage("Unable to start broswer: "+ex2.InnerException.Message, AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
+                                    ScarletLogger.LogMessage("Unable to start broswer: " + ex2.InnerException.Message, AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
 
                                 }
                                 break;
-                                
+
                             }
                         case "Notepad":
                             {
@@ -165,23 +235,27 @@ namespace ScarletLib.BaseClasses
                                 ScarletDAVoice.Voice.SpeakPhrase("Program Opened");
                                 break;
                             }
-                            
                     }
                 }
-                else if (answer == "Thank you")
+                else if (answer == "Tell me about yourself")
                 {
-                    ScarletDAVoice.Voice.SpeakPhrase("You're welcome");
+                    ScarletDAVoice.Voice.SpeakPhrase("My name is Scarlet, I am a digital assistant");
+                    ScarletDAVoice.Voice.SpeakPhrase("I was developed by Guilad Ofir, in 2017");
+                    ScarletDAVoice.Voice.SpeakPhrase("Would you like to view his Linked-in page?");
+                    inAbout = true;
+                    ScarletDASpeechListener.Listener.Listen();
 
                 }
+
                 else if (answer == "What is the meaning of life?" || answer == "What is the answer to life the universe and everything?")
                 {
                     ScarletDAVoice.Voice.SpeakPhrase("According to The Hitchhiker's Guide to the Galaxy, the answer is 42");
                 }
-                
-              
+
+
                 else if (answer == "Tell the time")
                 {
-                    ScarletDAVoice.Voice.SpeakPhrase("It is now " + DateTime.Now.Hour + ":" + DateTime.Now.Minute);
+                    ScarletDAVoice.Voice.SpeakPhrase("It is now " + DateTime.Now.Hour + " and " + DateTime.Now.Minute + " minutes");
                 }
                 else if (answer == "Tell the date")
                 {
