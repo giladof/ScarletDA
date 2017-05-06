@@ -16,6 +16,7 @@ namespace ScarletLib.BaseClasses
         private static object syncRoot = new Object();
         static ScarletDADictionaryBase Programs;
         static ManualResetEvent _completed = null;
+        public  event EventHandler GoToSleep;
         static bool rejected = false;
         private bool _listen;
         private bool _init;
@@ -38,13 +39,30 @@ namespace ScarletLib.BaseClasses
             _recognizer = new SpeechRecognitionEngine();
             _recognizer.SetInputToDefaultAudioDevice();
             GrammarBuilder g = new GrammarBuilder();
-            Choices options = new Choices(new string[] { "Yes","No","Hey Scarlet","Thank you","Tell me about yourself", "How do you feel?", "How are you?", "What's up?", "Tell the time", "Tell the date","What is the meaning of life?", "What is the answer to life the universe and everything?", "Bye bye Scarlet", "Goodbye Scarlet", "Goodbye" });
-            g.Append(options);            
+            string[] generalChoises = new string[] {"I'm fine","Fine","I'm Good","I'm good, thanks", "Yes", "No", "Hey Scarlet", "Thank you", "Bye bye Scarlet", "Goodbye Scarlet", "Goodbye" };
+            string[] questions =new string[] {"Go to sleep","sleep","Hi","Hey","Hello", "Who are you?", "Tell me about yourself", "How do you feel?", "How are you?", "What's up?", "Tell the time", "Tell the date", "What is the meaning of life?", "What is the answer to life the universe and everything?"};
+            Choices options = new Choices(generalChoises);
+            options.Add(questions);
+            g.Append(options);
+                        
             _recognizer.LoadGrammar(new Grammar(g));
             GrammarBuilder gOpen = new GrammarBuilder("Open");
-            Choices openProg = new Choices(new string[] {"vmware","Notepad", "google", "facebook","incognito","translate","Visual Studio Code","Visual Studio" });
+            string[] openProgString = new string[] { "vmware", "Notepad", "google", "facebook", "incognito", "translate", "Visual Studio Code", "Visual Studio" };
+            Choices openProg = new Choices(openProgString);
             gOpen.Append(openProg);
+            Choices scarletAdd = new Choices();
+            foreach (var v in openProgString)
+            {
+                scarletAdd.Add("Scarlet Open " + v);
+            }
+            foreach(var v in questions)
+                scarletAdd.Add("Scarlet  " + v);
+
             _recognizer.LoadGrammar(new Grammar(gOpen));
+            _recognizer.LoadGrammar(new Grammar(new GrammarBuilder(scarletAdd)));
+            var scarletGrammar = new GrammarBuilder("Scarlet");
+            
+            _recognizer.LoadGrammar(new Grammar(scarletGrammar));
             _recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(_recognizerSpeechRecognized);
             _recognizer.SpeechRecognitionRejected += _recognizer_SpeechRecognitionRejected;
          
@@ -102,14 +120,18 @@ namespace ScarletLib.BaseClasses
         private static bool inAbout = false;
         private void _recognizerSpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-            
+
             string answer = e.Result.Text;
+            if (answer.StartsWith("Scarlet"))
+            {
+                isInit = true;
+            }
             if (inAbout)
             {
                 inAbout = false;
                 if (answer == "Yes")
                 {
-                    Programs.GetProgram("Browser").AddArgument("www.linkedin.com/in/gilad-ofir-44959919");
+                    Programs.GetProgram("Browser").AddArgument(Properties.Resources.Developer);
                     bool res = Programs.RunProgram("Browser").Result;
                     ScarletDAVoice.Voice.SpeakPhrase("Profile opened");
                     Programs.GetProgram("Browser").RemoveArguments();
@@ -124,12 +146,25 @@ namespace ScarletLib.BaseClasses
                 ScarletDAVoice.Voice.SpeakPhrase("You're welcome");
 
             }
+            else if (answer == "Hi" || answer == "Hey" || answer == "Hello")
+            {
+                ScarletDAVoice.Voice.SpeakPhrase("How are you?");
+                _recognizer.SpeechRecognized -= _recognizerSpeechRecognized;
+                _recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(_recognizerAnswerGreeting);
+                ScarletDASpeechListener.Listener.Listen();
+            }
+            else if (answer=="Who are you?")
+            {
+                ScarletDAVoice.Voice.SpeakPhrase("I am Scarlet, your digital assistant");
+                ScarletDAVoice.Voice.SpeakPhrase("To ask me a question or give me commands, Say: Hey Scarlet!");
+                ScarletDAVoice.Voice.SpeakPhrase("You can also say: scarlet, following a question or a command");
+            }
             else if (answer == "Hey Scarlet")
             {
                 isInit = true;
                 return;
             }
-            else if (answer == "Bye bye Scarlet"||answer== "Goodbye Scarlet"||answer=="Goodbye")
+            else if (answer == "Bye bye Scarlet" || answer == "Goodbye Scarlet" || answer == "Goodbye")
             {
                 ScarletDAVoice.Voice.SpeakPhrase("Have a nice day, Goodbye!");
                 System.Diagnostics.Process.GetCurrentProcess().Kill();
@@ -137,36 +172,41 @@ namespace ScarletLib.BaseClasses
             if (isInit)
             {
                 //Greeting
-                if (answer == "How do you feel?" || answer == "How are you?" || answer == "What's up?")
+                if (answer.Contains("How do you feel?") || answer.Contains("How are you?") || answer.Contains("What's up?"))
                 {
                     ScarletDAVoice.Voice.SpeakPhrase("I feel great, thank you! Have a nice day");
 
                 }
-                else if (answer == "Open Visual Studio Code")
+                else if (answer.Contains("Open Visual Studio Code"))
                 {
-                       var result= new ScarletDAProgram("Visual Studio Code", "\"C:\\Program Files (x86)\\Microsoft VS Code\\Code.exe\"",null).RunmeAsync();
+                    var result = new ScarletDAProgram("Visual Studio Code", "\"" + Properties.Resources.Visual_Studio_Code + "\"", null).RunmeAsync();
                     ScarletDAVoice.Voice.SpeakPhrase("Opening Visual Studio Code");
                 }
-                else if (answer == "Open Visual Studio")
+                else if (answer.Contains("Open Visual Studio"))
                 {
-                    var result = new ScarletDAProgram("Visual Studio 2015", "\"C:\\Program Files(x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\devenv.exe\"", null).RunmeAsync();
+                    var result = new ScarletDAProgram("Visual Studio 2015", "\"" + Properties.Resources.Visual_Studio + "\"", null).RunmeAsync();
                     ScarletDAVoice.Voice.SpeakPhrase("Opening  Studio 2015");
                 }
-                else if (answer == "Open vmware")
+                else if (answer.Contains("Open vmware"))
                 {
-                    var result = new ScarletDAProgram("Vmware", "\"C:\\Program Files (x86)\\VMware\\VMware Workstation\\vmware.exe\"", null).RunmeAsync();
+                    var result = new ScarletDAProgram("Vmware", "\"" + Properties.Resources.Vmware + "\"", null).RunmeAsync();
                     ScarletDAVoice.Voice.SpeakPhrase("Opening Vmware");
                 }
-                else if (answer.StartsWith("Open"))
+                else if (answer.Contains("Go to sleep")||answer.Contains("Sleep"))
                 {
-                    switch (answer.Split(' ')[1])
+                    ScarletDAVoice.Voice.SpeakPhrase("Ok, wake me up when you need me");
+                    OnGotosleep(EventArgs.Empty);
+                }
+                else if (answer.Contains("Open"))
+                {
+                    switch (answer.Split(' ')[answer.Split(' ').Length - 1])
                     {
                         case "translate":
                             {
                                 bool res = false;
                                 try
                                 {
-                                    Programs.GetProgram("Browser").AddArgument("translate.google.com");
+                                    Programs.GetProgram("Browser").AddArgument(Properties.Resources.Google_Translate);
                                     res = Programs.RunProgram("Browser").Result;
                                     ScarletDAVoice.Voice.SpeakPhrase("Google translate opened");
                                     Programs.GetProgram("Browser").RemoveArguments();
@@ -237,7 +277,7 @@ namespace ScarletLib.BaseClasses
                             }
                     }
                 }
-                else if (answer == "Tell me about yourself")
+                else if (answer.Contains("Tell me about yourself"))
                 {
                     ScarletDAVoice.Voice.SpeakPhrase("My name is Scarlet, I am a digital assistant");
                     ScarletDAVoice.Voice.SpeakPhrase("I was developed by Guilad Ofir, in 2017");
@@ -247,24 +287,69 @@ namespace ScarletLib.BaseClasses
 
                 }
 
-                else if (answer == "What is the meaning of life?" || answer == "What is the answer to life the universe and everything?")
+                else if (answer.Contains("What is the meaning of life?") || answer.Contains("What is the answer to life the universe and everything?"))
                 {
                     ScarletDAVoice.Voice.SpeakPhrase("According to The Hitchhiker's Guide to the Galaxy, the answer is 42");
                 }
 
 
-                else if (answer == "Tell the time")
+                else if (answer.Contains("Tell the time"))
                 {
-                    ScarletDAVoice.Voice.SpeakPhrase("It is now " + DateTime.Now.Hour + " and " + DateTime.Now.Minute + " minutes");
+                    string ampm = (DateTime.Now.Hour > 12 ? "PM" : "AM");
+                    string hour = DateTime.Now.Hour.ToString();
+                    if (ampm == "pm")
+                    {
+                        hour = (int.Parse(hour) - 12).ToString();
+                    }
+                    if (hour == "0")
+                    {
+                        hour = "12";
+                    }
+                    ScarletDAVoice.Voice.SpeakPhrase("It is now " + hour + " and " + DateTime.Now.Minute + " minutes " + ampm);
                 }
-                else if (answer == "Tell the date")
+                else if (answer.Contains("Tell the date"))
                 {
-                    ScarletDAVoice.Voice.SpeakPhrase("Today is  " + DateTime.Now.ToString("dddd") + " , The " + DateTime.Today.Day + " of " + DateTime.Now.ToString("MMMM"));
+
+                    ScarletDAVoice.Voice.SpeakPhrase("Today is  " + DateTime.Now.ToString("dddd") + " , " + DateTime.Now.ToString("MMMM") + " " + DateTime.Today.Day + GetOrdinalSuffix(DateTime.Today.Day) + " " + DateTime.Now.ToString("yyyy"));
+
                 }
                 isInit = false;
             }
         }
 
-        
+        private void _recognizerAnswerGreeting(object sender, SpeechRecognizedEventArgs e)
+        {
+            if (e.Result.Text == "I'm fine" || e.Result.Text == "Fine" || e.Result.Text == "I'm Good" || e.Result.Text == "I'm good, thanks")
+            {
+                ScarletDAVoice.Voice.SpeakPhrase("I'm glad to hear that");
+            }
+            _recognizer.SpeechRecognized -= _recognizerAnswerGreeting;
+            _recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(_recognizerSpeechRecognized);
+        }
+
+        /// <summary>
+        /// Helper method for time
+        /// Adding suffix to day
+        /// </summary>
+        /// <param name="num"></param>
+        /// <returns></returns>
+        private static string GetOrdinalSuffix(int num)
+        {
+            if (num.ToString().EndsWith("11")) return "th";
+            if (num.ToString().EndsWith("12")) return "th";
+            if (num.ToString().EndsWith("13")) return "th";
+            if (num.ToString().EndsWith("1")) return "st";
+            if (num.ToString().EndsWith("2")) return "nd";
+            if (num.ToString().EndsWith("3")) return "rd";
+            return "th";
+        }
+        private void OnGotosleep(EventArgs e)
+        {
+            EventHandler handler = GoToSleep;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
     }
 }

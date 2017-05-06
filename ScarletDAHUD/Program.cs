@@ -23,6 +23,7 @@ namespace ScarletDAHUD
         private static void menuExit_Click(object Sender, EventArgs e)
         {
             // Close the form, which closes the application.
+            components.Remove(ScarletDANotifyIcon);
             System.Diagnostics.Process.GetCurrentProcess().Kill();
         }
         
@@ -130,9 +131,9 @@ namespace ScarletDAHUD
             {
                 init();
                ScarletLogger.LogMessage("Starting Scarlet Digital Assistant" , AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
-                ScarletDAVoice.Voice.SpeakPhrase("Hello! I am Scarlet, your digital assistant");
-                ScarletDAVoice.Voice.SpeakPhrase("Say: Hey Scarlet! to ask me a question or give me commands");
-                ScarletDAKeyboard.KeyboardExecuted += ScarletDAKeyboard_KeyboardExecuted; 
+                ScarletDAVoice.Voice.SpeakPhrase("Hello!");
+                ScarletDAKeyboard.KeyboardExecuted += ScarletDAKeyboard_KeyboardExecuted;
+                ScarletDASpeechListener.Listener.GoToSleep += Listener_GoToSleep;
                 SpeakListenRunner = new Thread(ListenSpeak);
                 SpeakListenRunner.Start();
                 Application.Run();
@@ -143,6 +144,11 @@ namespace ScarletDAHUD
                 ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAClient Error init " + e.Message, AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
 
             }
+        }
+
+        private static void Listener_GoToSleep(object sender, EventArgs e)
+        {
+            menuListenHandle_Click(null, null);
         }
 
         private static void ScarletDAKeyboard_KeyboardExecuted(object sender, ScarletLib.BaseClasses.ScarletDAKeyboard.KeyEventArgs e)
