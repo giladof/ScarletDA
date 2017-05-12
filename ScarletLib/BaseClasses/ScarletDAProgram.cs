@@ -38,7 +38,7 @@ namespace ScarletLib.BaseClasses
         Process proc;
         string _name;
         string _command;
-        Dictionary<string, string> _arguments;
+        List<string> _arguments;
         string _workingDirectory;
         int _procID;
         #endregion
@@ -56,12 +56,12 @@ namespace ScarletLib.BaseClasses
                     throw new Exception("Command must not be null!");
                 _command = value;
             } }
-        public Dictionary<string,string> Arguments { get
+        public List<string> Arguments { get
             {
                 
                 if (_arguments == null)
                 {
-                    return _arguments = new Dictionary<string, string>();
+                    return _arguments = new List<string>();
                 }
                 return _arguments;
             } private set { } }
@@ -114,10 +114,10 @@ namespace ScarletLib.BaseClasses
         #endregion
 
         #region Methods
-        public void AddArgument(string argValue="", string argSwitch="")
+        public void AddArgument(string Arg)
         {
-            if (argValue == null && argSwitch == null) throw new Exception("One parameter must not be null!");
-            Arguments.Add(argSwitch, argValue);
+            if (Arg == null) throw new Exception("Arg parameter must not be null!");
+            Arguments.Add(Arg);
         }
         public void RemoveArguments()
         {
@@ -133,9 +133,7 @@ namespace ScarletLib.BaseClasses
                 handler(this, e);
             }
         }
-        [DllImport("User32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
-        private IntPtr handle;
+
         public string Runme()
         {
             proc = new Process();
@@ -151,8 +149,6 @@ namespace ScarletLib.BaseClasses
             
             proc.Start();
             ProcID = proc.Id;
-            handle = proc.MainWindowHandle;
-            SetForegroundWindow(handle);
             OnProgramChanged(EventArgs.Empty); 
             while (!proc.HasExited)
             {
@@ -169,9 +165,8 @@ namespace ScarletLib.BaseClasses
             StringBuilder b = new StringBuilder();
             foreach (var arg in this.Arguments)
             {
-                if (arg.Key == null) b.Append(String.Format(" {0} ", arg.Value));
-                else if (arg.Value == "") b.Append(String.Format(" {0} ", arg.Key));
-                else b.Append(String.Format(" {0} {1}", arg.Key, arg.Value));
+                
+                b.Append(String.Format(" {0}",arg));
             }
             return b.ToString();
         }

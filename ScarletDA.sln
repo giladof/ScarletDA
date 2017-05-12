@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScarletDATest", "ScarletDAT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScarletDAHUD", "ScarletDAHUD\ScarletDAHUD.csproj", "{BE34D907-0FF9-41DE-AA93-625BF89C17E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScarletDADictionary", "ScarletDADictionary\ScarletDADictionary.csproj", "{46EFC11B-F310-43F2-914E-D02D7AB548B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{BE34D907-0FF9-41DE-AA93-625BF89C17E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE34D907-0FF9-41DE-AA93-625BF89C17E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE34D907-0FF9-41DE-AA93-625BF89C17E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46EFC11B-F310-43F2-914E-D02D7AB548B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46EFC11B-F310-43F2-914E-D02D7AB548B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46EFC11B-F310-43F2-914E-D02D7AB548B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46EFC11B-F310-43F2-914E-D02D7AB548B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
