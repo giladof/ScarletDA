@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace ScarletDADictionary.DictionaryClasses
 {
@@ -14,7 +15,7 @@ namespace ScarletDADictionary.DictionaryClasses
     /// <summary>
     /// Represents the base classes for Dictionary entries
     /// </summary>
-    public class ScarletDADictionaryEntry
+    public abstract class ScarletDADictionaryEntry
     {
         private string _name;
         public string Name { get { return _name; } }
@@ -26,6 +27,8 @@ namespace ScarletDADictionary.DictionaryClasses
             Name = _name;
             _entryType = type;
         }
+
+        public abstract XElement toXmlNode();
 
     }
 

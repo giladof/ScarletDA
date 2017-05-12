@@ -14,7 +14,7 @@ namespace ScarletDATest
             ScarletLib.BaseClasses.ScarletDAProgram notepad = new ScarletLib.BaseClasses.ScarletDAProgram("Notepad", "notepad.exe", null);
             ScarletLib.BaseClasses.ScarletDAProgram ping = new ScarletLib.BaseClasses.ScarletDAProgram("Ping", "ping.exe", null);
             ping.AddArgument("127.0.0.1");
-            ping.AddArgument("", "-t");
+            ping.AddArgument("-t");
             Task<string> result = ping.RunmeAsync();
             ping.ProgramChanged += ping_ProgramChanged;
             while (!result.IsCompleted)

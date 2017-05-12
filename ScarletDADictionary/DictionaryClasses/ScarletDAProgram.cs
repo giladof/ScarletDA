@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using ScarletLib.BaseClasses;
 namespace ScarletDADictionary.DictionaryClasses
 {
@@ -12,28 +13,48 @@ namespace ScarletDADictionary.DictionaryClasses
     public class ScarletDAProgramEntry : ScarletDADictionaryEntry
     {
         ScarletDAProgram _action;
-        string _text;
+
         int _id;
 
-        public ScarletDAProgramEntry(string Name,string Text,ScarletDAProgram Action) : base(Name, EntryType.Program)
+        public ScarletDAProgramEntry(string Name,ScarletDAProgram Action) : base(Name, EntryType.Program)
         {
             _id = -1;
-            _text = Text;
+            
             _action = Action;
             _action.ProgramChanged += _action_ProgramChanged;
         }
 
         private void _action_ProgramChanged(object sender, EventArgs e)
         {
-            _id = (sender as ScarletDAProgram).ProcID;
+
+            var prog = (sender as ScarletDAProgram);
+            if (prog.ProgramState == ScarletDAProgram.State.Running) _id = prog.ProcID;
+            else _id = -1;
         }
 
-        public string Text
+        public override XElement toXmlNode()
         {
-            get
+            XElement tempRootElement = new XElement(XName.Get("Program"));
+            var tempText = new XAttribute(XName.Get("Name"), Name);
+            tempRootElement.Add(tempText);
+            XElement tempCommand = new XElement(XName.Get("Command"), _action.Command);
+            if (_action.Arguments.Count != 0)
             {
-                return _text;
+                XElement tempArguments = new XElement(XName.Get("Arguments"));
+               
+                foreach (var arg in _action.Arguments)
+                {
+                    tempArguments.Add( new XElement(XName.Get("Argument"), arg));
+
+                }
+                tempRootElement.Add(tempArguments);
             }
+            if (_action.WorkingDirectory != null)
+            {
+                tempRootElement.Add(new XElement(XName.Get("WorkingDirectory"), _action.WorkingDirectory));
+            }
+            tempRootElement.Add(tempCommand);
+            return tempRootElement;
         }
 
         public ScarletDAProgram Action

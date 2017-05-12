@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace ScarletDADictionary.DictionaryClasses
 {
@@ -24,6 +25,14 @@ namespace ScarletDADictionary.DictionaryClasses
             {
                 return _text;
             }    
+        }
+
+        public override XElement toXmlNode()
+        {
+            XElement tempRootElement = new XElement(XName.Get("Output"));
+            var tempText = new XAttribute(XName.Get("Name"), Name);
+            tempRootElement.Add(new XElement(XName.Get("Text"), _text));
+            return tempRootElement;
         }
     }
 }
