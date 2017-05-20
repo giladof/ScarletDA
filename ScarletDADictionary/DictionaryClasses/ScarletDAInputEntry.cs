@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ScarletDADictionary.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,10 +17,11 @@ namespace ScarletDADictionary.DictionaryClasses
     {
         private ScarletDAProgramEntry _choiceProgram;
         string[] _text;
+
         private ScarletDAChoiceEntry[] _choices;
+        ScarletDAOutputEntry _outputtext;
 
-
-        public ScarletDAInputEntry(string Name,string[] InputText, ScarletDAChoiceEntry[] Choices = null, string Outputtext = null, ScarletDAProgramEntry Program = null) : base(Name, EntryType.Input)
+        public ScarletDAInputEntry(string Name,string[] InputText, ScarletDAChoiceEntry[] Choices = null, ScarletDAOutputEntry Outputtext = null, ScarletDAProgramEntry Program = null) : base(Name, EntryType.Input)
         {
             _text = InputText;
             if (Choices != null)
@@ -31,6 +33,7 @@ namespace ScarletDADictionary.DictionaryClasses
             {
                 if (Outputtext == null && Program == null) throw new Exception("Either text or Program must not be null");
                 if (Outputtext == null) _choiceProgram = Program;
+                else _outputtext = Outputtext;
             }
             
         }
@@ -64,6 +67,16 @@ namespace ScarletDADictionary.DictionaryClasses
             }
         }
 
+        public ScarletDAOutputEntry Outputtext
+        {
+            get
+            {
+                return _outputtext;
+            }
+
+          
+        }
+
         public override XElement toXmlNode()
         {
             XElement tempRootElement = new XElement(XName.Get("Input"));
@@ -81,19 +94,43 @@ namespace ScarletDADictionary.DictionaryClasses
                 }
                 tempRootElement.Add(tempChoicesRoot);
             }
-
             else
             {
                 XElement tempElement = null;
-                if (_text == null)
-                {
-                    tempElement = new XElement(XName.Get("Text"));
-                    tempElement.SetValue(_text);
-                }
+                if (Outputtext != null)tempElement.Add(_outputtext.toXmlNode());
                 else tempElement = Program.toXmlNode();
                 tempRootElement.Add(tempElement);
             }
             return tempRootElement;
         }
+
+        public static new  ScarletDAInputEntry fromXmlNode(XElement node)
+        {
+            var strName = node.Attribute(XName.Get("Name")).Value;
+            var strTextElem = node.Elements(XName.Get("Text"));
+            List<ScarletDAChoiceEntry> listChoices = null;
+            ScarletDAProgramEntry listPrograms = null;
+            ScarletDAOutputEntry listOutput = null;
+            List<string> textArr = new List<string>();
+            foreach (var el in strTextElem)
+            {
+                textArr.Add(el.Value);
+            }
+            var elChoices = node.Element("Choices");
+            
+            if (elChoices != null)
+            {
+                listChoices = new List<ScarletDAChoiceEntry>();
+                foreach (var choice in elChoices.Descendants())
+                {
+                    listChoices.Add(ScarletDAChoiceEntry.fromXmlNode(choice));
+                }
+            }
+            return new ScarletDAInputEntry(strName, textArr.ToArray(), listChoices.ToArray(), listOutput, listPrograms);
+            
+        }
+
+        
     }
 }
+

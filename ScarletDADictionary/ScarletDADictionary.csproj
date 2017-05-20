@@ -44,7 +44,8 @@
     <Compile Include="DictionaryClasses\ScarletDADictionaryEntry.cs" />
     <Compile Include="DictionaryClasses\ScarletDAInputEntry.cs" />
     <Compile Include="DictionaryClasses\ScarletDAOutputEntry.cs" />
-    <Compile Include="DictionaryClasses\ScarletDAProgram.cs" />
+    <Compile Include="DictionaryClasses\ScarletDAProgramEntry.cs" />
+    <Compile Include="Interfaces\IXmlDictionary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

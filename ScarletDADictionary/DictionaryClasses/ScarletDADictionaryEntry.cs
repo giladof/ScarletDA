@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ScarletDADictionary.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,7 @@ namespace ScarletDADictionary.DictionaryClasses
     /// <summary>
     /// Represents the base classes for Dictionary entries
     /// </summary>
-    public abstract class ScarletDADictionaryEntry
+    public abstract class ScarletDADictionaryEntry : IXmlDictionary
     {
         private string _name;
         public string Name { get { return _name; } }
@@ -29,7 +30,11 @@ namespace ScarletDADictionary.DictionaryClasses
         }
 
         public abstract XElement toXmlNode();
-
+        public ScarletDADictionaryEntry fromXmlNode(XElement node)
+        {
+            var tempName = node.Attribute("Name");
+            return new ScarletDAChoiceEntry(Name);
+        }
     }
 
 }

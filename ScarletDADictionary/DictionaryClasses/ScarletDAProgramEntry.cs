@@ -57,6 +57,25 @@ namespace ScarletDADictionary.DictionaryClasses
             return tempRootElement;
         }
 
+        public static new ScarletDAProgramEntry fromXmlNode(XElement node)
+        {
+            var strName = node.Attribute(XName.Get("Name")).Value;
+            var strCommand = node.Element(XName.Get("Command")).Value;
+            
+            var elWorkingDirectory = node.Element(XName.Get("WorkingDirectory"));
+            string strWorkingDirectory = null;
+            if (elWorkingDirectory != null) strWorkingDirectory = elWorkingDirectory.Value;
+            var Program = new ScarletDAProgram(strName, strCommand,strWorkingDirectory);
+            var ElArgumentsArr = node.Element("Arguments");
+            if (ElArgumentsArr != null)
+            {
+                foreach (var arg in ElArgumentsArr.Descendants())
+                    Program.AddArgument(arg.Value);
+            }
+            return new ScarletDAProgramEntry(strName, Program);
+
+        }
+
         public ScarletDAProgram Action
         {
             get
@@ -76,5 +95,6 @@ namespace ScarletDADictionary.DictionaryClasses
 
            
         }
+
     }
 }

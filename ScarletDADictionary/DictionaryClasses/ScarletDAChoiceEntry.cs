@@ -78,7 +78,7 @@ namespace ScarletDADictionary.DictionaryClasses
             var tempText = new XAttribute(XName.Get("Name"),Name);
             tempRootElement.Add(tempText);
             XElement tempElement = null;
-            if (_text == null)
+            if (_text != null)
             {
                 tempElement = new XElement(XName.Get("Text"));
                 tempElement.SetValue(_text);
@@ -86,6 +86,20 @@ namespace ScarletDADictionary.DictionaryClasses
             else tempElement = Program.toXmlNode();
             tempRootElement.Add(tempElement);
             return tempRootElement;
+        }
+
+        public static new ScarletDAChoiceEntry fromXmlNode(XElement node)
+        {
+            var strName = node.Attribute(XName.Get("Name")).Value;
+            var TextElem = node.Element(XName.Get("Text"));
+            string strTextElem = null;
+            ScarletDAProgramEntry tempProgram = null;
+            if (TextElem != null)
+            {
+                strTextElem = TextElem.Element(XName.Get("Text")).Value;
+            }
+            tempProgram = ScarletDAProgramEntry.fromXmlNode(node.Element("Program"));
+            return new ScarletDAChoiceEntry(strName, strTextElem, tempProgram);
         }
     }
 }
