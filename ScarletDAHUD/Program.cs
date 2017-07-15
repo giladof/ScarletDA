@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using ScarletLib.BaseClasses;
 using System.Threading;
 using System.Security.Permissions;
+using System.Speech.Recognition;
 
 namespace ScarletDAHUD
 {
@@ -142,7 +143,10 @@ namespace ScarletDAHUD
             catch (Exception e)
             {
                 ScarletLib.BaseClasses.ScarletLogger.LogMessage("ScarletDAClient Error init " + e.Message, AppDomain.CurrentDomain.BaseDirectory + "HudLog.txt");
-
+                foreach (RecognizerInfo ri in SpeechRecognitionEngine.InstalledRecognizers())
+                {
+                    System.Diagnostics.Debug.WriteLine(ri.Culture.Name);
+                }
             }
         }
 

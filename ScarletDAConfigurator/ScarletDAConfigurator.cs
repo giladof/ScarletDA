@@ -57,6 +57,7 @@ namespace ScarletDAConfigurator
             else
             {
                 _document = new XElement(XName.Get("Input"));
+                _document.Save(_xmlPath);
                 _docExists = false;
             }
         }
